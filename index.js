@@ -1,8 +1,8 @@
-let map;
+const map = await initMap();
 let data;
 const markers = [];
 
-async function createMarker(oid, map) {
+async function createMarker(oid) {
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
   let record = data.records.filter((obj) => {return obj.oid === oid}); // SELECT FROM data WHERE obj.oid = oid
   record = record[0]; // for some reason i need to do this in order to get to the actual record
@@ -12,23 +12,24 @@ async function createMarker(oid, map) {
     title: record.tna // tna = accepted name i think?
   })
 
+  // console.log("created marker at", new_marker.position);
+  console.log("created marker at", record.lat, ",", record.lng);
   markers.push(new_marker);
+  // var onMap = map.getBounds().contains(new_marker.position); 
+  // console.log(onMap);
 }
 
 async function initMap() {
   console.log("Dinosaurs!")
 
-  // readJson();
-
   const { Map } = await google.maps.importLibrary("maps");
-  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
-  map = new Map(document.getElementById("map"), {
+  return new Map(document.getElementById("map"), {
     center: {lat:0,lng:0},
     zoom: 2,
     mapId: "DEMO_MAP_ID",
     mapTypeId: 'satellite',
-    mapTypeControl: false, // satellite only (do i keep?)
+    // mapTypeControl: false, // satellite only (do i keep?)
   });
 }
 
@@ -44,13 +45,12 @@ async function createAllMarkers() {
   let keys = Object.keys(data.records).slice(0,num_records);
 
   for (let x in keys) { 
-    createMarker(data.records[x].oid, map);
-    
+    createMarker(data.records[x].oid);
   } 
 }
 
-await initMap();
 createAllMarkers();
+
 
 // /**
 //  * @license
