@@ -157,8 +157,8 @@ async function readJson(url)
 // create markers from each row in the json data
 async function createAllMarkers() 
 {
-  data = await readJson('https://paleobiodb.org/data1.2/occs/list.json?datainfo&rowcount&base_name=Dinosauria&pgm=gplates,scotese,seton&show=full&limit=50');
   let num_records = 50;
+  data = await readJson(`https://paleobiodb.org/data1.2/occs/list.json?datainfo&rowcount&base_name=Dinosauria&pgm=gplates,scotese,seton&show=full&limit=${num_records}`);
   let keys = Object.keys(data.records).slice(0,num_records);
 
   for (let x in keys) { 
