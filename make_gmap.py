@@ -4,13 +4,14 @@ from bokeh.models import WMTSTileSource, ColumnDataSource, GMapOptions, CustomJS
 from bokeh.plotting import figure, show, output_file, gmap
 from bokeh.layouts import gridplot, column, row, layout
 from bokeh.embed import components, json_item
+from bokeh.events import Tap
 
 import apikey
 
 import pandas as pd
 import numpy as np
 
-output_file("index.html")
+# output_file("index.html")
 
 # convert lat/long to web mercator format
 def wgs84_to_web_mercator(df, lon="lng", lat="lat"):
@@ -75,7 +76,7 @@ df['cluster_size'] = -1
 # the callback function is called whenever the slider is changed, and it updates the filter's list of booleans based on the slider's value (the time range)
 # --------------------------------------------------------------------------
 
-stylesheet = InlineStyleSheet(css=":host{height:100%;width:300px;position:fixed;z-index:1;top:0;left:0;background-color:#111;overflow-x:hidden;padding-top:20px}:host a{padding:6px 8px 6px 16px;text-decoration:none;font-size:25px;color:#818181;display:block}:host a:hover{color:#f1f1f1}")
+stylesheet = InlineStyleSheet(css=":host{height:100%;width:300px;position:fixed;z-index:1;top:0;left:0;background-color:#111;overflow-x:hidden;padding-top:20px}:host p{padding:6px 8px 6px 16px;text-decoration:none;font-size:12px;color:#818181;display:block}:host a:hover{color:#f1f1f1}:host h1{padding:6px 8px 6px 16px;text-decoration:none;font-size:25px;color:#818181;display:block}")
 
 time_slider = RangeSlider(value=(100, 200), start=0, end=4000, step=1, direction='rtl', title="Time Range (Ma)", sizing_mode='stretch_width')
 bool_filter = BooleanFilter([True]*len(df)) # true for everything, so shows everything initially, not ideal but works for now
@@ -107,29 +108,44 @@ p.circle(x='lng', y='lat', fill_color='orange', selection_color="blue", size=10,
 taptool = p.select(type=TapTool)
 
 div = Div(text = """ 
-      <a id="about" href="#">About</a>
+      <a id="about" href="#"></a>
       <a href="#">Services</a>
       <a href="#">Clients</a>
       <a href="#">Contact</a>  """, width=50, height=100, stylesheets=[stylesheet]) # ADD IN STYLESHEET
 
-callback2 = CustomJS(code = """
-                     
-    //var id = document.getElementById(document.body.getElementsByTagName("div")[0].id).id               
-    //console.log(document.getElementById(id).getElementsByClassName("bk-Column")[0].shadowRoot.querySelectorAll(".bk-Row")[0].shadowRoot.querySelectorAll(".bk-Div")[0].shadowRoot.querySelectorAll(".bk-clearfix")[0].querySelectorAll("#mySidebar")[0]);
-    //document.getElementById(id).getElementsByClassName("bk-Column")[0].shadowRoot.querySelectorAll(".bk-Row")[0].shadowRoot.querySelectorAll(".bk-Div")[0].shadowRoot.querySelectorAll(".bk-clearfix")[0].querySelectorAll("#mySidebar")[0].style.width = "300px";
-    //console.log(document.getElementById(id).getElementsByClassName("bk-Column")[0].shadowRoot.querySelectorAll(".bk-Row")[0].shadowRoot.querySelectorAll(".bk-Div")[0].shadowRoot.querySelectorAll(".bk-clearfix")[0].querySelectorAll("#mySidebar")[0]);
-                    
-    
-                     
- """)
+def callback2(event):
 
-taptool.callback = callback2
+    print(source.selected.indices)
+    indexActive = source.selected.indices[0]
+    print(final_layout.children[0])
+
+    div = Div(text=
+              
+    "<h1>" + str(df['accepted_name'][indexActive]) + 
+    "</h1><br><p>Lived: " + str(df['max_ma'][indexActive]) + " million years ago - " + str(df['min_ma'][indexActive]) + " million years ago </p> ", 
+
+    width=50, height=100, stylesheets=[stylesheet])
+    
+    final_layout.children[0] = div  # adjust the info on the right
+
+# print(p.selected.indices)
+
+# passes callback2 the new attribute value
+p.on_event(Tap, callback2)
+
+div = Div(text=df['accepted_name'][0])
+
+# taptool.callback = callback2
+
+# make it so that when one of the circles is clicked, the above callback2 function runs
+
+
 
 final_layout = column(p, time_slider, margin=(0,0,0,300), sizing_mode='stretch_width')
 final_layout = row(div, final_layout, sizing_mode='stretch_width')
 
-show(final_layout)
+# show(final_layout)
 
-
+curdoc().add_root(final_layout)
 
 
