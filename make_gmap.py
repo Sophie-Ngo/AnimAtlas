@@ -156,7 +156,7 @@ def callbackShowData(event):
     ref = getReference(df['occurrence_no'][indexActive])
     record = df.iloc[indexActive]
 
-    data_div = Div(text= "<script>console.log('hello')</script>" + 
+    data_div = Div(text=  
     "<h1>" + str(getAttributeFromList(record, 'accepted_name')).capitalize() + 
     "</h1><br><p>Time period: " + str(getTimePeriod(getAttributeFromList(record, 'min_ma'), getAttributeFromList(record, 'max_ma'))) + 
     "<br> (" + str(getAttributeFromList(record, 'max_ma')) + " million years ago - " + str(getAttributeFromList(record, 'min_ma')) + " million years ago) </p>" +
