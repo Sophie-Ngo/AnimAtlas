@@ -148,10 +148,13 @@ def callbackShowData(event):
         updateSidebar(nav, default_content)
         return
 
+    global df
+
     indexActive = source.selected.indices[0]
 
-    global df
-    # gpt_response = getGPTResponse("What is " + str(df['accepted_name'][indexActive]) + "?")
+    prompt = "What is " + str(df['accepted_name'][indexActive]) + "?"
+
+    gpt_response = getGPTResponse(prompt)
 
     ref = getReference(df['occurrence_no'][indexActive])
     record = df.iloc[indexActive]
@@ -162,16 +165,33 @@ def callbackShowData(event):
     "<br> (" + str(getAttributeFromList(record, 'max_ma')) + " million years ago - " + str(getAttributeFromList(record, 'min_ma')) + " million years ago) </p>" +
     "<p>Diet: " + str(getAttributeFromList(record, 'diet')).capitalize() + "</p>" +
     "<p> Rank: " + str(getAttributeFromList(record, 'accepted_rank')).capitalize() + "</p>" +
-    "<h4>What is it?</h4> <p>" + 'gpt_response' + "</p>" +
+    "<h4>What is it?</h4><p>  " + str(gpt_response) + "</p>" +
     "<h4>Attribution</h4> <p> Title: " + str(getAttributeFromList(ref, 'reftitle')) + "</p>" +  # reftitle = reference title in ref csv
     "<p> Published in: " + str(getAttributeFromList(ref, 'pubyr')) + "</p>" +
     "<p> DOI: " + str(getAttributeFromList(ref, 'doi')) + "</p>" ,  
 
     margin=(50,0,0,0), stylesheets=[stylesheet])
     
+    # prompt_box = TextInput(placeholder="", title="Have a question?")
+    # prompt_button = Button(label="Ask", button_type="default")
+    # prompt_button.on_click()
+
+    # prompt_area = row(prompt_box, prompt_button)
+    # gpt_answer = Div(text="<p>" + gpt_response + "</p>", stylesheets=[stylesheet])
+
+    # content = column([data_div, prompt_area, gpt_answer], margin=(50,0,0,0), stylesheets=[stylesheet])
+
     updateSidebar(nav, data_div)
 
     print("Details updated!")
+
+# work in progress
+def askQuestion(prompt):
+    answer = getGPTResponse(prompt)
+
+    # update sidebar with answer
+
+
 
 def getAttributeFromList(list, attr):
     if not isinstance(list, pd.Series):
@@ -188,7 +208,7 @@ def getAttributeFromList(list, attr):
 def getReference(occ_id):
     row = df[df["occurrence_no"] == occ_id]
     ref_id = row["reference_no"].iloc[0]
-    link = "https://dev.paleobiodb.org/data1.2/refs/single.csv?id=" + str(ref_id) + "&show=both"
+    link = "https://paleobiodb.org/data1.2/refs/single.csv?id=" + str(ref_id) + "&show=both"
 
     print("Fetching reference from URL:", link)
 
@@ -202,14 +222,15 @@ def getReference(occ_id):
     
     return ref
 
-def getGPTResponse(text):
+def getGPTResponse(prompt):
+    print("Asking: " + prompt)
     client = OpenAI(
         api_key=apikeys.openaikey,
     )
 
     chat_completion = client.chat.completions.create(
     model="gpt-3.5-turbo",
-    messages=[{"role": "user", "content": text}]
+    messages=[{"role": "user", "content": prompt}]
     )
 
     # copilit gave me this code, idk what it does yet
@@ -260,7 +281,6 @@ def callbackSearchSubmit(event):
 
     updateMap(final_link)
 
-
 # show the search page
 def callbackSearch(event):
 
@@ -270,12 +290,14 @@ def callbackSearch(event):
 
 def introPage(event):
 
-    div = Div(text="<h1>What is this?</h1><br><p>Each dot on the map represents a fossil occurrence. What is a fossil occurence, you may ask? </p>" + 
+    div = Div(text="<h1>What is AnimAtlas?</h1><br><p> AnimAtlas allows you to explore fossil discoveries that have been recorded in the <a href='https://paleobiodb.org/'>Paleobiology Database.</a> </p>" + 
+              "<p>Each dot on the map represents a fossil occurrence. What is a fossil occurence, you may ask? </p>" + 
               "<p>A <b>fossil occurrence</b> represents a taxon (for example, a species or genus) whose fossils are recorded at a specific place and a specific geological time. It may consist of " + 
               "more than one fossil. Each occurrence has been described in a publication, " +
               "which helps us gain information about it. Besides time range, researchers also store information such as the condition of the fossils, the habits of the organism, " + 
               "and data about the surrounding geography. </p> <h4>Things to do</h4> <list><li>You can click on any of the dots on the map to learn more about each fossil occurrence. </li>" + 
-              "<li>Use the search bar to specify what appears on the map.</li> <li>Play with the time range slider to see what organisms lived during different time periods!</li></list>")
+              "<li>Use the search bar to specify what appears on the map.</li> <li>Play with the time range slider to see what organisms lived during different time periods!</li></list>" + 
+              "<br> <p> To return to this page at any time, click the 'Help' button at the top of the page. </p> ")
 
     content = column([div], margin=(50,0,0,0), stylesheets=[stylesheet])
 
@@ -314,8 +336,10 @@ detailButton.on_click(callbackShowData)
 searchButton = Button(label="Search", button_type="default")
 searchButton.on_click(callbackSearch)
 
+help_button = Button(label="Help", button_type="default")
+help_button.on_click(introPage)
 
-nav = row([detailButton, searchButton])
+nav = row([detailButton, searchButton, help_button])
 
 sidebar_width = 400
 
@@ -335,11 +359,10 @@ stylesheet = InlineStyleSheet(css=":host{color:black;height:100%;width:" + str(s
 
 # color_bar = ColorBar(color_mapper)
 
-basic_div = Div(text="<p>Select a data point to learn about fossil occurences!</p>" + 
-          "<p>Don't know where to start? Explore these pages below. </p>",
+basic_div = Div(text=""" <p>Select a data point to learn about fossil <button type='button' onclick="console.log('test')"></button>occurences! </p> <p>Don't know where to start? Explore these pages below. </p> """,
           margin=(50,0,-200,0), stylesheets=[stylesheet]) 
 
-intropage_button = Button(label="What is this?", button_type="default")
+intropage_button = Button(label="What is AnimAtlas?", button_type="default")
 intropage_button.on_click(introPage)
 trex_button = Button(label="Tyrannosaurus Rex", button_type="default")
 trex_button.on_click(trexPage)
@@ -349,11 +372,10 @@ explore_buttons = column(intropage_button, trex_button, margin=(200,0,0,0), styl
 
 default_content = column([basic_div, explore_buttons])
 
-
 # --------------------------------------------- #
 # Final Layout Stuff 
 # --------------------------------------------- #
-p = Div(text="loading...")
+p = Div(text="") #placeholder
 
 final_layout = column(p, time_slider, margin=(0,0,0,0), sizing_mode='stretch_width')
 final_layout = row(default_content, final_layout, sizing_mode='stretch_width')

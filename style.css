@@ -2,88 +2,164 @@
  * Always set the map height explicitly to define the size of the div element
  * that contains the map. 
  */
- /* #map {
+#mainmap {
   height: 100%;
-} */
+}
 
 /* 
  * Optional: Makes the sample page fill the window. 
  */
-/* html,
+html,
 body {
   height: 100%;
   margin: 0;
   padding: 0;
-} */
-
-:host {
-  background-color: black;
+  font-family:'Trebuchet MS';
 }
 
-/* The sidebar menu */
-.sidebar {
-  height: 100%; /* 100% Full-height */
-  width: 0; /* 0 width - change this with JavaScript */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
+#wrapper {
+  /* position: relative; */
+}
+
+#searchquery {
+  font-size: 20px;
+  color: #000000;
+  width: 100%;
+}
+
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5%;
+  background-color: #04AA6D;
+}
+
+.button1 {background-color: #04AA6D;} /* Green */
+
+.sidenav {
+  height: 100%;
+  width: 20%;
+  min-width:350px;
+  position: fixed;
+  z-index: 1;
   top: 0;
   left: 0;
-  background-color: #fff; /* Black*/
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top: 60px; /* Place content 60px from the top */
-  transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+  background-color: #FFFFFF;
+  overflow-x: hidden;
 }
 
-a {
-  color: red;
-}
-
-/* The sidebar links */
-.sidebar a {
-  padding: 8px 8px 8px 32px;
+.sidenav a {
   text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
+  font-weight: bold;
+  color: #035c29;
+}
+ 
+.sidenav a:hover {
+  color: #04AA6D;
+} 
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+#info{
+  /* border: 1px solid #000000; */
+  /* height: 100%; */
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.footer {
+  position: fixed;
+  margin-left: max(350px, 20%);
+  padding-bottom: 0.5%;
+  left: 0;
+  bottom: 0;
+  width: min(80%);
+  background-color: #FFFFFF;
+  color: black;
+  text-align: left;
+}
+
+/* Style the tab - same width and min width as sidenav */
+.tab {
+  overflow: hidden;
+  /* border: 1px solid #ccc; */
+  background-color: #f1f1f1;
+  position: fixed;
+  width: 20%;
+  min-width:350px;
+}
+ 
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
   transition: 0.3s;
 }
 
-/* When you mouse over the navigation links, change their color */
-.sidebar a:hover {
-  color: black;
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
 }
 
-/* Position and style the close button (top right corner) */
-.sidebar .closebtn {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
 }
 
-/* The button used to open the sidebar */
-.openbtn {
-  font-size: 20px;
-  cursor: pointer;
-  background-color: white;
-  color: black;
-  padding: 10px 15px;
-  border: none;
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  /* border: 1px solid #ccc; */
+  border-top: none;
 }
 
-.openbtn:hover {
-  background-color: #444;
+/* keep list items having the same indent */
+li {
+  text-indent:-20px; 
+  margin-left:20px;
 }
 
-/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
-#main {
-  transition: margin-left .5s; /* If you want a transition effect */
-  padding: 20px;
-}
-
-/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidebar {padding-top: 15px;}
-  .sidebar a {font-size: 18px;}
+.sidenavcontent {
+  padding:5%;
+  margin-top:5%
 }
