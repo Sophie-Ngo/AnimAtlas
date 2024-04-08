@@ -9,63 +9,73 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script type="module" src="./index.js"></script>
     <script src="//d3js.org/d3.v3.min.js"></script>
-    <!-- <script async
+    <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAACd_oTrV0i8LlICe3P_oOhOTTwwoQaw&libraries=visualization">
-    </script> -->
+    </script>
     <link rel="stylesheet/less" type="text/css" href="styles.less" />
     <script src="https://cdn.jsdelivr.net/npm/less" ></script>
+
+    <script>
+      function myFunction() {
+      var x = document.getElementsByClassName("sidenav")[0];
+      var slider = document.getElementsByClassName("footer")[0];
+      
+      
+      if (x.style.display === "block") {
+        x.style.display = "none";
+        slider.style.display = "none";
+        var y = document.getElementById("hamburger_menu");
+        // y.style.display = "block";
+      } else {
+        x.style.display = "block";
+        slider.style.display = "block";
+      }
+    }
+    </script>
   </head>
   <body>
 
   <div id="loader"></div>
-
-  <div id="closebtn">
-    <button onclick="closeNav()">x</button>
-    <button onclick="openNav()"> open </button>
+  
+  <div class="sidenav2">
+      <button id="hamburger_menu" class="tablinks"  onclick="myFunction()"><i>≡</i></button>
   </div>
 
-  <div id="sidenav" class="sidenav">
+  <div class="sidenav">
    <div class="tab">
+     <button class="tablinks icon"  onclick="myFunction()"><i class="fa fa-bars"></i></button>
      <button id="help_button" class="tablinks active">Help</button>
      <button id="details_button" class="tablinks">Details</button> 
      <button id="search_button" class="tablinks">Search</button>
      <button id="visualization_button" class="tablinks">Visualization</button>
    </div>
 
+
   <!-- <h1>AnimAtlas 🦖🌎🦕</h1> -->
 <div class="sidenavcontent">
   <div id="Details" class="tabcontent">
     <div id="info">
+      <div id="infoimg"></div>
     </div>
-
-    <!-- chatbase ai -->
-    <!-- <iframe
-    src="https://www.chatbase.co/chatbot-iframe/nWfjMlmx-VQfIwjr8GHf1"
-    width="100%"
-    style="height: 100%; width:100%; min-height: 400px; display: none"
-    frameborder="0"
-    id="chatbot"
-    ></iframe> -->
-
-
   </div>
   
   <div id="Search" class="tabcontent">
-      <p>All fields are optional.</p>
-      <p style='color: grey'>(Tip: Hover over orange text for more info!)</p>
-      <p><b class="tooltip">Name: <span class="tooltiptext">Taxonomic name of the organisms you wish to search for. This can be any name of any rank. For example, 'Dinosauria' will find all dinosaur fossils, while 'Tyrannosaurus Rex' will only find Tyrannosaurus Rex fossils. <br>
-      <br>Don't know what to search? Try some of these for starters: <br><br>&nbsp&nbspFelidae (all cats)<br>&nbsp&nbspHomo (humans and human relatives)<br>&nbsp&nbspHomo sapiens (humans only)</span></b>
-      <br><input type="text" id="namequery" class="searchquery"></p>
-      <p><b class="tooltip">Min MA: <span class="tooltiptext">The maximum estimated million years ago that an organism lived.</span></b>
-      <br><input type="text" id="minrangequery" class="searchquery"></p>
-      <p><b class="tooltip">Max MA: <span class="tooltiptext">The minimum estimated million years ago that an organism lived.</span></b>
-      <br><input type="text" id="maxrangequery" class="searchquery"></p>
-      <p><b class="tooltip">Limit: <span class="tooltiptext">Limit the number of fossil occurrences in the new data. If the load time is slow, consider lowering this number.</span></b>
-      <br><input type="text" id="limitquery" class="searchquery"></p>
-      <!-- Update button -->
-      <button class="button button1" id="updateBtn">Update</button>
+    <p>All fields are optional.</p>
+    <p style='color: grey'>(Tip: Hover over orange text for more info!)</p>
+    <p><b class="tooltip">Name: <span class="tooltiptext">Taxonomic name of the organisms you wish to search for. This can be any name of any rank. For example, 'Dinosauria' will find all dinosaur fossils, while 'Tyrannosaurus Rex' will only find Tyrannosaurus Rex fossils. <br>
+    <br>Don't know what to search? Try some of these for starters: <br><br>&nbsp&nbspFelidae (all cats)<br>&nbsp&nbspHomo (humans and human relatives)<br>&nbsp&nbspHomo sapiens (humans only)</span></b>
+    <br><input type="text" id="namequery" class="searchquery"></p>
+    <p><b class="tooltip">Min MA: <span class="tooltiptext">The maximum estimated million years ago that an organism lived.</span></b>
+    <br><input type="text" id="minrangequery" class="searchquery"></p>
+    <p><b class="tooltip">Max MA: <span class="tooltiptext">The minimum estimated million years ago that an organism lived.</span></b>
+    <br><input type="text" id="maxrangequery" class="searchquery"></p>
+    <p><b class="tooltip">Limit: <span class="tooltiptext">Limit the number of fossil occurrences in the new data. If the load time is slow, consider lowering this number.</span></b>
+    <br><input type="text" id="limitquery" class="searchquery"></p>
+    <!-- Update button -->
+    <button class="button button1" id="updateBtn">Update</button>
   </div>
   
   <div id="Help" class="tabcontent">
@@ -141,66 +151,19 @@
 
     <!-- </div> -->
 
-  <div id="footer" class="footer">
+  <div class="footer">
 
     <div class="multi-range">
-      <span style="width: 350px; float:left; padding: 5px; text-align:center; background-color: #ff776e;">
+      <span style="width: 350px; float:left; padding: 5px; text-align:center;">
         <h2><span id="minrange"></span><span id="maxrange"></span></h2>
       </span>
-      <input type="range" min="0", max="100", value="0", id="upper" name="upper">
-      <output for="upper" onforminput="value = upper.valueAsNumber;"></output>
-      <input type="range" min="0", max="100", value="0", id="lower", name="lower">
-      <output for="lower" onforminput="value = lower.valueAsNumber;"></output>
+      <input type="range" min="0", max="20", value="0", id="upper">
+      <input type="range" min="0", max="20", value="0", id="lower">
     </div>
   </div>
 
   </body>
-  <script>(g => {
-    var h, a, k, p = "The Google Maps JavaScript API",
-        c = "google",
-        l = "importLibrary",
-        q = "__ib__",
-        m = document,
-        b = window;
-    b = b[c] || (b[c] = {});
-    var d = b.maps || (b.maps = {}),
-        r = new Set,
-        e = new URLSearchParams,
-        u = () => h || (h = new Promise(async (f, n) => {
-            await (a = m.createElement("script"));
-            e.set("libraries", [...r] + "");
-            for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
-            e.set("callback", c + ".maps." + q);
-            a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
-            d[q] = f;
-            a.onerror = () => h = n(Error(p + " could not load."));
-            a.nonce = m.querySelector("script[nonce]")?.nonce || "";
-            m.head.append(a)
-        }));
-    d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
-})
-({
-    key: "AIzaSyDAACd_oTrV0i8LlICe3P_oOhOTTwwoQaw",
-    v: "weekly"
-});</script>
-
-<script>
-  function closeNav() {
-      document.getElementById("closebtn").style.marginLeft = "0";
-      document.getElementById("sidenav").style.display = "none";
-      document.getElementById("mainmap").style.marginLeft = "0";
-      document.getElementById("mainmap").style.width = "100%";
-      document.getElementById("footer").style.marginLeft = "0";
-      document.getElementById("footer").style.width = "100%";
-    }
-
-    function openNav() {
-      document.getElementById("closebtn").style.marginLeft = "max(350px, 23%)";
-      document.getElementById("sidenav").style.display = "";
-      document.getElementById("mainmap").style.marginLeft = "max(350px, 23%)";
-      document.getElementById("mainmap").style.width = "80%";
-      document.getElementById("footer").style.marginLeft = "max(350px, 23%)";
-      document.getElementById("footer").style.width = "min(80%)";
-    }
-</script>
+  <!-- prettier-ignore -->
+  <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+      ({key: "AIzaSyDAACd_oTrV0i8LlICe3P_oOhOTTwwoQaw", v: "weekly"});</script>
 </html>
