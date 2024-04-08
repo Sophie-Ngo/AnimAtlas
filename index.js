@@ -33,55 +33,31 @@ const gradient = [
 var apiurl = "https://paleobiodb.org/data1.2/occs/list.csv?base_name=Dinosauria&show=full&limit=1000";
 
 
-function addIFrame(displayed_name){
+function addImageFromWiki(displayed_name){
 
-  var url = "https://en.wikipedia.org/w/api.php"; 
-
-  var params = {
-      action: "query",
-      prop: "images",
-      titles: "Albert Einstein",
-      format: "json"
-  };
-
-  url = url + "?origin=*";
-  Object.keys(params).forEach(function(key){url += "&" + key + "=" + params[key];});
+  var url = "https://en.wikipedia.org/w/api.php?action=query&titles="+displayed_name+"&prop=pageimages&format=json&origin=*&pithumbsize=300";
 
   fetch(url)
-      .then(function(response){return response.json();})
+      .then(function(response){
+        return response.json();})
       .then(function(response) {
-          console.log("Wikipedia");
-          console.log(response);
-          var pages = response.query.pages;
+        var pages = response.query.pages;
 
-          var img_content = "<h3> Images from Wikipedia </h3>";
-
-          console.log(pages);
-
-          for (var page in pages) {
-              for (var img of pages[page].images) {
-                  // console.log(img);
-                  // img_content += "<img src='https://upload.wikimedia.org/wikipedia/commons/a/ad/"+ img.title+"'></img>";
-
-                  document.getElementById("infoimg").innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/a/ad/"+ img.title+"'></img>";
-
-                  console.log(img.title);
-              }
+        console.log(pages);
+        Object.keys(pages).forEach(function(key) {
+          if (pages[key].thumbnail === undefined) {
+            return;
           }
+            console.log(pages[key].thumbnail.source);
+            var thumb_width = pages[key].thumbnail.width;
+            var thumb_height = pages[key].thumbnail.height;
+
+            document.getElementById("infoimg").innerHTML = "<img width="+thumb_width+" height="+thumb_height+" src='"+ pages[key].thumbnail.source +"'></img>";
+            // document.getElementById("info").innerHTML += "<p>"+ pages[key].extract +"</p>";
+          });
       })
       .catch(function(error){console.log(error);});
-
-  // iframe to wikipedia
-
-  // var url = "https://commons.wikimedia.org/w/index.php?search="+displayed_name+"&title=Special:MediaSearch&go=Go&type=image"
-
-  // var url = 'https://commons.wikimedia.org/w/index.php?search=Aves&title=Special:MediaSearch&go=Go&type=image';
-
-  // var iframe = "<iframe src="+ url +" width='100%' height='500px' style='border: 1px solid black;'></iframe>";
-
-  // console.log(iframe);
-  // return iframe;
-
+    
 }
 
 // Initialize and add the map
@@ -195,10 +171,8 @@ async function initMap(maptype) {
             content += "<p><b>DOI: </b>" + getAttributeFromData(reference, 'doi') + "</p>";
             content += "<div id='infoimg'></div>";
 
-            addIFrame(displayed_name);
+            addImageFromWiki(displayed_name);
             document.getElementById("info").innerHTML = content;
-
-            // document.getElementById("chatbot").style = "height: 30%; min-height: 500px; display: block";
 
             openPage("Details");
           });
@@ -206,7 +180,7 @@ async function initMap(maptype) {
       } else {maptype
         
         content += "<div id='infoimg'></div>";
-        addIFrame(displayed_name);
+        addImageFromWiki(displayed_name);
         document.getElementById("info").innerHTML = content;
 
         // document.getElementById("chatbot").style = "display: block;";
