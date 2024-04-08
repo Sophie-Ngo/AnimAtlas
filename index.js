@@ -32,6 +32,58 @@ const gradient = [
 // initialize with dinosaur data
 var apiurl = "https://paleobiodb.org/data1.2/occs/list.csv?base_name=Dinosauria&show=full&limit=1000";
 
+
+function addIFrame(displayed_name){
+
+  var url = "https://en.wikipedia.org/w/api.php"; 
+
+  var params = {
+      action: "query",
+      prop: "images",
+      titles: "Albert Einstein",
+      format: "json"
+  };
+
+  url = url + "?origin=*";
+  Object.keys(params).forEach(function(key){url += "&" + key + "=" + params[key];});
+
+  fetch(url)
+      .then(function(response){return response.json();})
+      .then(function(response) {
+          console.log("Wikipedia");
+          console.log(response);
+          var pages = response.query.pages;
+
+          var img_content = "<h3> Images from Wikipedia </h3>";
+
+          console.log(pages);
+
+          for (var page in pages) {
+              for (var img of pages[page].images) {
+                  // console.log(img);
+                  // img_content += "<img src='https://upload.wikimedia.org/wikipedia/commons/a/ad/"+ img.title+"'></img>";
+
+                  document.getElementById("infoimg").innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/a/ad/"+ img.title+"'></img>";
+
+                  console.log(img.title);
+              }
+          }
+      })
+      .catch(function(error){console.log(error);});
+
+  // iframe to wikipedia
+
+  // var url = "https://commons.wikimedia.org/w/index.php?search="+displayed_name+"&title=Special:MediaSearch&go=Go&type=image"
+
+  // var url = 'https://commons.wikimedia.org/w/index.php?search=Aves&title=Special:MediaSearch&go=Go&type=image';
+
+  // var iframe = "<iframe src="+ url +" width='100%' height='500px' style='border: 1px solid black;'></iframe>";
+
+  // console.log(iframe);
+  // return iframe;
+
+}
+
 // Initialize and add the map
 async function initMap(maptype) {
 
@@ -133,29 +185,36 @@ async function initMap(maptype) {
 
         content += "<h3> Attribution </h3>"
         var ref_id = getAttributeFromData(row, 'reference_no');
-        
-        if (ref_id !== "") {
+
+      if (ref_id !== "") {
 
         await d3.csv("https://paleobiodb.org/data1.2/refs/single.csv?id=" + ref_id.toString() + "&show=both", function (data) {
           data.map((reference, i) => {
             content += "<p><b>Title: </b>" + capitalize(getAttributeFromData(reference, 'reftitle')) + "</p>";
             content += "<p><b>Published in: </b>" + getAttributeFromData(reference, 'pubyr') + "</p>";
             content += "<p><b>DOI: </b>" + getAttributeFromData(reference, 'doi') + "</p>";
+            content += "<div id='infoimg'></div>";
 
+            addIFrame(displayed_name);
             document.getElementById("info").innerHTML = content;
 
-            document.getElementById("chatbot").style = "height: 30%; min-height: 500px; display: block";
+            // document.getElementById("chatbot").style = "height: 30%; min-height: 500px; display: block";
 
             openPage("Details");
           });
         });
       } else {maptype
+        
+        content += "<div id='infoimg'></div>";
+        addIFrame(displayed_name);
         document.getElementById("info").innerHTML = content;
 
-        document.getElementById("chatbot").style = "display: block;";
+        // document.getElementById("chatbot").style = "display: block;";
 
         openPage("Details");
       }
+
+      
 
       });
 
@@ -202,6 +261,7 @@ async function initMap(maptype) {
   });
 
 }
+
 
 // Update the map with subset of markers, based on slider and search query.
 async function updateMap() {
