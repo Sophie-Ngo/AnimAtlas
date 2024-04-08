@@ -8,15 +8,39 @@ var markers = [];
 // map object
 var map;
 
+// global heatmap layer
+var heatmap;
+
+// for heatmap color
+const gradient = [
+  "rgba(0, 255, 255, 0)",
+  "rgba(0, 255, 255, 1)",
+  "rgba(0, 191, 255, 1)",
+  "rgba(0, 127, 255, 1)",
+  "rgba(0, 63, 255, 1)",
+  "rgba(0, 0, 255, 1)",
+  "rgba(0, 0, 223, 1)",
+  "rgba(0, 0, 191, 1)",
+  "rgba(0, 0, 159, 1)",
+  "rgba(0, 0, 127, 1)",
+  "rgba(63, 0, 91, 1)",
+  "rgba(127, 0, 63, 1)",
+  "rgba(191, 0, 31, 1)",
+  "rgba(255, 0, 0, 1)",
+];
+
+// initialize with dinosaur data
+var apiurl = "https://paleobiodb.org/data1.2/occs/list.csv?base_name=Dinosauria&show=full&limit=1000";
 
 // Initialize and add the map
 async function initMap(maptype) {
 
-  // Request needed libraries.
+  const { Visualization } = await google.maps.importLibrary("visualization");
   const { Map, InfoWindow } = await google.maps.importLibrary("maps");
   const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary(
     "marker",
   );
+  // Request needed libraries.
 
   // The map
   map = new google.maps.Map(document.getElementById("mainmap"), {
@@ -25,17 +49,25 @@ async function initMap(maptype) {
     mapId: "DEMO_MAP_ID",
     mapTypeId: 'satellite',
     disableDefaultUI: true,
+    maxZoom: 18,
+    minZoom: 2,
+    backgroundColor: 'dedede',
+    // zoom: 3,
+    minZoom: 3,
+    restriction: {
+      latLngBounds: {
+        east: 179.9999,
+        north: 85,
+        south: -85,
+        west: -179.9999
+      },
+      strictBounds: true
+    }
   });
 
+  console.log("Fetching data from API URL:", apiurl);
   // Load the data from the csv file.
-  // d3.csv("pbdb_data2.csv", function (data) {
-  d3.csv("https://paleobiodb.org/data1.2/occs/list.csv?base_name=Dinosauria&pgm=gplates,scotese,seton&show=full&limit=500", function (data) {
-    // document.getElementById("loader").style.display = "none";
-    // The info (pop-up) window
-    // const infoWindow = new google.maps.InfoWindow({
-    //   content: "",
-    //   disableAutoPan: true,
-    // });
+  d3.csv(apiurl, function (data) {
 
     // ensure numerical data is being read as numeric
     data.forEach(function(d) {
@@ -58,15 +90,14 @@ async function initMap(maptype) {
     document.getElementById('minrange').innerHTML = min_range + " - ";
     document.getElementById('maxrange').innerHTML = max_range + " million years ago";
 
-    console.log("Min range, max range:", min_range, max_range);
-
     // For each row in the csv file, create a marker.
     markers = data.map((row, i) => {
-      const label = row['accepted_name'];
-      const pinGlyph = new google.maps.marker.PinElement({
-        glyph: label,
-        glyphColor: "black",
-      });
+
+      // const label = row['accepted_name'];
+      // const pinGlyph = new google.maps.marker.PinElement({
+      //   glyph: label,
+      //   glyphColor: "white",
+      // });
       
       // Get the position of the marker.
       var position = { lat: parseFloat(row['lat']), lng: parseFloat(row['lng']) };
@@ -74,7 +105,7 @@ async function initMap(maptype) {
       // Create the marker object
       const marker = new google.maps.marker.AdvancedMarkerElement({
         position,
-        content: pinGlyph.element,
+        // content: pinGlyph.element,
       });
   
       // markers can only be keyboard focusable when they have click listeners
@@ -86,15 +117,21 @@ async function initMap(maptype) {
         if (displayed_name === "") {
           displayed_name = getAttributeFromData(row, 'identified_name');
         }
-        var content = "<h1>"+ capitalize(displayed_name) +"</h1>";
+        var content = "<a href='https://en.wikipedia.org/wiki/" + displayed_name.split(" ")[0] + "'><h1>"+ capitalize(displayed_name) +"</h1></a>";
 
-        content += "<p><b> Time Range: </b>";
+        content += "<p style='color: grey'>(Tip: Hover over orange text for more info!)</p>";
+
+        content += "<p><b class='tooltip'> Time Range: <span class='tooltiptext'>Time Range is an estimate of how many millions of years ago this organism may have lived. </span></b> ";
         content += getAttributeFromData(row, 'max_ma').toString() + " million years ago - ";
         content += getAttributeFromData(row, 'min_ma').toString() + " million years ago </p>";
 
-        content += "<p><b>Diet: </b>" + capitalize(getAttributeFromData(row, 'diet')) + "</p>";
+        content += "<p><b class='tooltip'>Diet: <span class='tooltiptext'>Diet describes the types of food that animals consume based on their primary sources of nutrition. <br> Herbivores - plant-eating <br> Carnivores - meat-eating <br> There are many other diet types, such as piscivores, which are fish-eaters. </span></b> " + capitalize(getAttributeFromData(row, 'diet')) + "</p>";
+        content += "<p><b class='tooltip'>Rank: <span class='tooltiptext'>Rank is the taxonomic level this fossil was identified as. The more specific the rank, the more we know about what type of animal it was. The most specific rank is Species, followed by Genus and Family. If the rank is 'unranked clade,' it means this is a group of organisms that are descendants of a common ancestor. </span></b> " + capitalize(getAttributeFromData(row, 'accepted_rank')) + "</p>";
+        content += "<p><b class='tooltip'>Motility: <span class='tooltiptext'>Motility describes the organism's ability to move around.</span></b> " + capitalize(getAttributeFromData(row, 'motility')) + "</p>";
+        content += "<p><b class='tooltip'>Life Habit: <span class='tooltiptext'>Life Habit describes the organism's general lifestyle. </span></b> " + capitalize(getAttributeFromData(row, 'life_habit')) + "</p>";
+        content += "<p><b class='tooltip'>Reproduction: <span class='tooltiptext'>Reproduction describes the organism's ability to reproduce.  </span></b> " + capitalize(getAttributeFromData(row, 'reproduction')) + "</p>";
 
-        content += "<h3> Attribution: </h3>"
+        content += "<h3> Attribution </h3>"
         var ref_id = getAttributeFromData(row, 'reference_no');
         
         if (ref_id !== "") {
@@ -107,11 +144,15 @@ async function initMap(maptype) {
 
             document.getElementById("info").innerHTML = content;
 
+            document.getElementById("chatbot").style = "height: 30%; min-height: 500px; display: block";
+
             openPage("Details");
           });
         });
-      } else {
+      } else {maptype
         document.getElementById("info").innerHTML = content;
+
+        document.getElementById("chatbot").style = "display: block;";
 
         openPage("Details");
       }
@@ -124,9 +165,12 @@ async function initMap(maptype) {
       return marker;
     });
 
-    if(maptype == "points"){
-      markerCluster.clearMarkers();
+    console.log("Creating map with visualization:", getActiveVisualization());
 
+    if(maptype == "points"){
+      if (markerCluster !== undefined) {
+      markerCluster.clearMarkers();
+      }
       // Add each marker to the map, one by one
       markers.forEach((marker) => {
         marker.setMap(map);
@@ -138,76 +182,64 @@ async function initMap(maptype) {
       // Create the marker clusterer object. This groups/clusters the markers.
       markerCluster = new markerClusterer.MarkerClusterer({ markers, map });
     }
-    else{
+    else if(maptype == "heatmap"){
       //clear clusters 
+      if (markerCluster !== undefined) {
       markerCluster.clearMarkers();
-
+      }
       // google maps heatmap
-      var heatmap = new google.maps.visualization.HeatmapLayer({
+      heatmap = new google.maps.visualization.HeatmapLayer({
         data: data.map((row, i) => { return new google.maps.LatLng(parseFloat(row['lat']), parseFloat(row['lng']))}),
-        map: map,
         radius: 20
       });
-
-      const gradient = [
-        "rgba(0, 255, 255, 0)",
-        "rgba(0, 255, 255, 1)",
-        "rgba(0, 191, 255, 1)",
-        "rgba(0, 127, 255, 1)",
-        "rgba(0, 63, 255, 1)",
-        "rgba(0, 0, 255, 1)",
-        "rgba(0, 0, 223, 1)",
-        "rgba(0, 0, 191, 1)",
-        "rgba(0, 0, 159, 1)",
-        "rgba(0, 0, 127, 1)",
-        "rgba(63, 0, 91, 1)",
-        "rgba(127, 0, 63, 1)",
-        "rgba(191, 0, 31, 1)",
-        "rgba(255, 0, 0, 1)",
-      ];
+      console.log(map instanceof google.maps.Map);
+      heatmap.setMap(map);
     
       heatmap.set("gradient", heatmap.get("gradient") ? null : gradient);
+    } else {
+      console.log("Error - invalid map type: " + maptype);
     }
   });
+
 }
 
 // Update the map with subset of markers, based on slider and search query.
 async function updateMap() {
   console.log("Updating map...")
 
-  // New markers to be shown.
-  var new_markers = [];
+  let baselink = "https://paleobiodb.org/data1.2/occs/list.csv?show=full&";
+  let parameters = []
 
-  // Clear all the current markers.
-  markerCluster.clearMarkers();
+  // convert all spaces to 20% for url
+  var namequery = document.getElementById("namequery").value.replace(/ /g, "%20");
+  if (namequery !== "") {parameters.push("base_name=" + namequery);}
+  var minrangequery = document.getElementById("minrangequery").value;
+  if (minrangequery !== "") {parameters.push("min_ma=" + minrangequery);}
+  var maxrangequery = document.getElementById("maxrangequery").value;
+  if (maxrangequery !== "") {parameters.push("max_ma=" + maxrangequery);}
+  var limitquery = document.getElementById("limitquery").value;
+  if (limitquery !== "") {parameters.push("limit=" + limitquery);}
 
-  // Get the search query.
-  var query = document.getElementById("namequery").value;
-
-  var lowerSlider = document.querySelector('#lower');
-  var upperSlider = document.querySelector('#upper');
-
-
-  // lowerVal = parseInt(lowerSlider.value);
-  // upperVal = parseInt(upperSlider.value);
-  
-  for (var i = 0; i < markers.length; i++) {
-    
-    // Add the markers that meet the criteria.
-    if ((markers[i].data['max_ma'] < upperVal) && (markers[i].data['min_ma'] > lowerVal) && ((query == "") || (markers[i].data['accepted_name'] == query))) {
-      // if (((query == "") || (markers[i].data['accepted_name'] == query))) {
-      new_markers.push(markers[i]);
-    }
+  if (parameters.length === 0) {
+    console.log("No parameters entered");
+    return; // no parameters, so don't update map
   }
 
-  // Add the new markers to the map.
-  markerCluster.addMarkers(new_markers);
+  let active_viz = getActiveVisualization(); 
+  // final link
+  apiurl = baselink + parameters.join("&");
 
-  console.log("Map updated!");
+  // fetch the data. once that is done, update the map with the new data
+  try {
+    initMap(active_viz);
+  } catch (error) {
+    console.log(error);
+  }
+
 }
 
 // Initialize and add the map
-initMap("clusters");
+initMap("points");
 
 // Add event listener to update button
 document.getElementById("updateBtn").addEventListener("click", updateMap);
@@ -221,6 +253,20 @@ document.getElementById("updateBtn").addEventListener("click", updateMap);
 //   year.innerHTML = this.value;
 // }
 
+// returns the id of the active visualization
+function getActiveVisualization() {
+
+  let vizbuttons = document.getElementsByClassName("vizbutton");
+
+  // finds which radio button is checked
+  for (let i = 0; i < vizbuttons.length; i++) {
+    if (vizbuttons[i].checked) {
+      return vizbuttons[i].id;
+    }
+  }
+}
+
+
 function openPage(evt) {
 
   let pageName
@@ -228,10 +274,27 @@ function openPage(evt) {
 
   // evt is string if a glyph is clicked
   if (typeof evt === 'string') {
-    if (evt === 'Details') {
+    if (evt === 'Help') {
+      pageName = evt;
+      current_tab = document.getElementById('help_button');
+    }
+    else if (evt === 'Details') {
       pageName = evt;
       current_tab = document.getElementById('details_button');
     }
+    else if (evt === 'Search') {
+      pageName = evt;
+      current_tab = document.getElementById('search_button');
+    }
+    else if (evt === 'Visualization') {
+      pageName = evt;
+      current_tab = document.getElementById('visualization_button');
+    }
+    else {
+      console.log("Error: invalid page");
+    }
+
+  // evt is an event if a tab is clicked
   } else {
     pageName = evt.currentTarget.innerHTML;
     current_tab = evt.currentTarget;
@@ -303,22 +366,36 @@ document.getElementById("visualization_button").addEventListener("click", openPa
 
 document.getElementById("visualization_button").addEventListener("click", openPage);
 
+// open tutorial page
 document.getElementById("trex_button").addEventListener("click", openSubPage);
+// 
+document.getElementById("trex_action").addEventListener("click", function() {
+  document.getElementById("namequery").value = "Tyrannosaurus rex";
+  updateMap();
+});
 
 document.getElementById("Help").style.display = "block";
 
 document.getElementById("points").addEventListener("click", function() {
   initMap("points");
 });
-document.getElementById("cluster").addEventListener("click", function() {
+document.getElementById("clusters").addEventListener("click", function() {
   initMap("clusters");
 });
 document.getElementById("heatmap").addEventListener("click", function() {
   initMap("heatmap");
 });
 
+// these are the links at the top of tutorial pages that link back to the 'Help' page
+let backtohelp_buttons = document.getElementsByClassName("backtohelp")
+for (let i = 0; i < backtohelp_buttons.length; i++) {
+  backtohelp_buttons[i].onclick = function() {
+    openPage("Help");
+  };
+}
+
 // initialize empty detail window (when no data is selected)
-document.getElementById("info").innerHTML = "<h1>Select a data point to get started!</h1>  <p>Or, if you'd like, explore these pages below. </p> ";
+document.getElementById("info").innerHTML = "<p>Select a data on the map point to get started!</p>  ";
 
 var lowerSlider = document.querySelector('#lower');
 var upperSlider = document.querySelector('#upper');
@@ -370,21 +447,49 @@ lowerSlider.oninput = function() {
 
 function filterMarkers(minrange, maxrange){
   var visible_markers = [];
+  var visible_markers_rows = [];
 
   for (var i = 0; i < markers.length; i++) {
     // in order for the fossil to show up, its time range must OVERLAP with the time range selected by the user
     // meaning, EITHER the max_ma is below maxrange AND above minrange, OR the min_ma is above minrange AND below maxrange
     if (((markers[i].data['min_ma'] >= minrange) && (markers[i].data['min_ma'] <= maxrange)) ||
         ((markers[i].data['max_ma'] >= minrange) && (markers[i].data['max_ma'] <= maxrange))) {
-      markers[i].map = map;
+      // markers[i].map = map;
       visible_markers.push(markers[i]);
+      visible_markers_rows.push(markers[i].data);
     }
     else{
       markers[i].map = null;
     }
   }
 
-  // redraw the clusters
+  let current_viz = getActiveVisualization();
+  if (markerCluster !== undefined) {
   markerCluster.clearMarkers();
-  markerCluster.addMarkers(visible_markers);
+  }
+
+  if (current_viz == "points") {
+    // redraw the points
+    for (var i = 0; i < visible_markers.length; i++) {
+      visible_markers[i].setMap(map);
+    }
+  }
+  else if (current_viz == "clusters") {
+    // redraw the clusters
+    markerCluster.addMarkers(visible_markers);
+  } else if (current_viz == "heatmap") {
+    // redraw the heatmap
+    heatmap.setMap(null);
+
+    heatmap = new google.maps.visualization.HeatmapLayer({
+      data: visible_markers_rows.map((row, i) => { return new google.maps.LatLng(parseFloat(row['lat']), parseFloat(row['lng']))}),
+      map: map,
+      radius: 20
+    });
+    heatmap.set("gradient", heatmap.get("gradient") ? null : gradient);
+  } else {
+    console.log("Error - invalid map type: " + current_viz);
+  }
+
 }
+

@@ -4,6 +4,8 @@
  */
 #mainmap {
   height: 100%;
+  width: 80%;
+  margin-left: max(350px, 23%);
 }
 
 /* 
@@ -21,10 +23,10 @@ body {
   /* position: relative; */
 }
 
-#searchquery {
+.searchquery {
   font-size: 20px;
   color: #000000;
-  width: 100%;
+  width: 300px;
 }
 
 .button {
@@ -39,16 +41,24 @@ body {
   cursor: pointer;
   border-radius: 5%;
   background-color: #04AA6D;
+  z-index: 3;
 }
+
 
 .button1 {background-color: #04AA6D;} /* Green */
 
+#closebtn {
+  position: fixed;
+  margin-left: max(350px, 23%);
+  z-index: 4;
+}
+
 .sidenav {
   height: 100%;
-  width: 20%;
+  width: 23%;
   min-width:350px;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   top: 0;
   left: 0;
   background-color: #FFFFFF;
@@ -104,7 +114,7 @@ body {
 
 .footer {
   position: fixed;
-  margin-left: max(350px, 20%);
+  margin-left: max(350px, 23%);
   padding-bottom: 0.5%;
   left: 0;
   bottom: 0;
@@ -120,7 +130,7 @@ body {
   /* border: 1px solid #ccc; */
   background-color: #f1f1f1;
   position: fixed;
-  width: 20%;
+  width: 23%;
   min-width:350px;
 }
  
@@ -149,6 +159,7 @@ body {
 .tabcontent {
   display: none;
   padding: 6px 12px;
+  margin-top: 10px;
   /* border: 1px solid #ccc; */
   border-top: none;
 }
@@ -162,4 +173,42 @@ li {
 .sidenavcontent {
   padding:5%;
   margin-top:5%
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  color: #ff6f00;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.tooltip .tooltiptext {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-weight: normal;
+  visibility: hidden;
+  width: 300px;
+  background-color: black;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  margin-left: -50px;
+  
+  /* Fade in tooltip - takes 0.5 second to go from 0% to 100% opac: */
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.tooltip:hover {
+  color: #ffa763;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
